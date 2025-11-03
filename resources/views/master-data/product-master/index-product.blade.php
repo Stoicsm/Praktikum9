@@ -30,15 +30,30 @@
         </form>
 
         <div class="overflow-x-auto shadow-lg sm:rounded-lg">
-            {{-- Tombol Tambah Produk --}}
-            <div class="mb-4">
+            {{-- Tombol Tambah Produk dan Export Excel --}}
+            <div class="mb-4 flex gap-2">
                 <a href="{{ route('product-create') }}">
                     <button
                         class="px-6 py-4 text-white bg-green-500 border border-green-500 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
                         Add product data
                     </button>
                 </a>
-            </div>
+
+                {{-- Tombol Export Excel, PDF, JPG --}}
+                <div class="mb-4 flex gap-2">
+    <a href="{{ route('product-export-excel') }}">
+        <button class="px-6 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Export ke Excel</button>
+    </a>
+
+    <a href="{{ route('product-export-pdf') }}">
+        <button class="px-6 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600">Export ke PDF</button>
+    </a>
+
+    <a href="{{ route('product-export-jpg') }}">
+        <button class="px-6 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600">Export ke JPG</button>
+    </a>
+</div>
+
 
             {{-- Tabel Data Produk --}}
             <table class="min-w-full border border-collapse border-gray-200">

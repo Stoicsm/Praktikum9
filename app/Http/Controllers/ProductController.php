@@ -1,48 +1,78 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use App\Exports\ProductsExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Spatie\Browsershot\Browsershot;
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function exportJpg()
+{
+    // Ubah variabel menjadi $products biar sesuai dengan compact()
+    $products = Product::all();
+
+    $firstProduct = Product::orderBy('created_at', 'asc')->first();
+    $lastProduct  = Product::orderBy('created_at', 'desc')->first();
+
+    $startDate = $firstProduct ? $firstProduct->created_at->format('d/m/Y') : null;
+    $endDate   = $lastProduct ? $lastProduct->created_at->format('d/m/Y') : null;
+
+    // Perbaiki variabel di compact()
+    $html = view('master-data.product-master.export-product', compact('products', 'startDate', 'endDate'))->render();
+
+    $path = storage_path('app/public/product.jpg');
+
+    Browsershot::html($html)
+        ->setScreenshotType('jpeg')
+        ->windowSize(1200, 800)
+        ->save($path);
+
+    return response()->download($path);
+}
+
+public function exportPdf()
+{
+    // Sama seperti di atas — ganti $data jadi $products
+    $products = Product::all();
+
+    $firstProduct = Product::orderBy('created_at', 'asc')->first();
+    $lastProduct  = Product::orderBy('created_at', 'desc')->first();
+
+    $startDate = $firstProduct ? $firstProduct->created_at->format('d/m/Y') : null;
+    $endDate   = $lastProduct ? $lastProduct->created_at->format('d/m/Y') : null;
+    
+    $pdf = Pdf::loadView('master-data.product-master.export-product', compact('products', 'startDate', 'endDate'));
+    return $pdf->download('product.pdf');
+}
+
+
+    public function exportExcel()
     {
-        $query = Product::query();
-
-        // 🔍 Fitur pencarian
-        if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('product_name', 'like', '%' . $search . '%');
-            });
-        }
-
-        // 🔽🔼 Fitur sorting kolom
-        $sortBy = $request->get('sort_by', 'id');
-        $sortOrder = $request->get('sort_order', 'asc');
-
-        $allowedSorts = ['id', 'product_name', 'unit', 'type', 'qty', 'producer'];
-        if (!in_array($sortBy, $allowedSorts)) {
-            $sortBy = 'id';
-        }
-
-        $query->orderBy($sortBy, $sortOrder);
-
-        $data = $query->paginate(5)->appends([
-            'search' => $request->search,
-            'sort_by' => $sortBy,
-            'sort_order' => $sortOrder,
-        ]);
-
-        return view('master-data.product-master.index-product', compact('data', 'sortBy', 'sortOrder'));
+        return Excel::download(new ProductsExport, 'products.xlsx');
     }
+    
+    public function index()
+{
+    $data = Product::paginate(10);
+
+    $firstProduct = Product::orderBy('created_at', 'asc')->first();
+    $lastProduct  = Product::orderBy('created_at', 'desc')->first();
+
+    $startDate = $firstProduct ? $firstProduct->created_at->format('d/m/Y') : null;
+    $endDate   = $lastProduct ? $lastProduct->created_at->format('d/m/Y') : null;
+
+    return view('master-data.product-master.index-product', compact('data', 'startDate', 'endDate'));
+}
+
 
     public function create(): View
     {
