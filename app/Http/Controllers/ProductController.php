@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use App\Exports\ProductsExport;
@@ -60,23 +61,27 @@ public function exportPdf()
         return Excel::download(new ProductsExport, 'products.xlsx');
     }
     
-    public function index()
-{
-    $data = Product::paginate(10);
+    public function index(Request $request)
+    {
+        // Eager-load supplier to avoid N+1 and provide supplier data for the view
+        $data = Product::with('supplier')->paginate(10);
 
-    $firstProduct = Product::orderBy('created_at', 'asc')->first();
-    $lastProduct  = Product::orderBy('created_at', 'desc')->first();
+        $firstProduct = Product::orderBy('created_at', 'asc')->first();
+        $lastProduct  = Product::orderBy('created_at', 'desc')->first();
 
-    $startDate = $firstProduct ? $firstProduct->created_at->format('d/m/Y') : null;
-    $endDate   = $lastProduct ? $lastProduct->created_at->format('d/m/Y') : null;
+        $startDate = $firstProduct ? $firstProduct->created_at->format('d/m/Y') : null;
+        $endDate   = $lastProduct ? $lastProduct->created_at->format('d/m/Y') : null;
 
-    return view('master-data.product-master.index-product', compact('data', 'startDate', 'endDate'));
-}
+        return view('master-data.product-master.index-product', compact('data', 'startDate', 'endDate'));
+    }
 
 
     public function create(): View
     {
-        return view("Master-Data.Product-Master.create-product");
+        // Ambil daftar supplier untuk ditampilkan pada form create
+        $suppliers = Supplier::all();
+        // Gunakan path view yang sesuai dengan struktur folder (lowercase, dot notation)
+        return view('master-data.product-master.create-product', compact('suppliers'));
     }
 
     /**
@@ -92,6 +97,7 @@ public function exportPdf()
                 'information' => 'nullable|string',
                 'qty' => 'required|integer',
                 'producer' => 'required|string|max:255',
+                'supplier_id' => 'required|exists:suppliers,id',
             ]);
 
             Product::create($validatedData);
@@ -125,7 +131,9 @@ public function exportPdf()
     public function edit(string $id)
     {
         $product = Product::findOrFail($id);
-        return view('master-data.product-master.edit-product', compact('product'));
+        // Ambil daftar supplier untuk dropdown pada form edit
+        $suppliers = Supplier::all();
+        return view('master-data.product-master.edit-product', compact('product', 'suppliers'));
     }
 
     /**
@@ -141,6 +149,7 @@ public function exportPdf()
                 'information'  => 'nullable|string',
                 'qty'          => 'required|integer|min:1',
                 'producer'     => 'required|string|max:255',
+                'supplier_id'  => 'required|exists:suppliers,id',
             ]);
 
             $product = Product::findOrFail($id);
@@ -152,6 +161,7 @@ public function exportPdf()
                 'information'  => $request->information,
                 'qty'          => $request->qty,
                 'producer'     => $request->producer,
+                'supplier_id'  => $request->supplier_id,
             ]);
 
             // Pop-up sukses

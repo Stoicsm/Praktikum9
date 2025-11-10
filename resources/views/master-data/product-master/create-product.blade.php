@@ -66,6 +66,18 @@ text-sm font-medium text-gray-700">Producer</label>
 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500
 focus:border-indigo-500 sm:text-sm" required>
                             </div>
+                            <div class="form-group">
+                                <label for="supplier_id" class="block text-sm font-medium text-gray-700">Supplier</label>
+                                <select id="supplier_id" name="supplier_id" class="block w-full p-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                                    <option value="" disabled {{ old('supplier_id') ? '' : 'selected' }}>Pilih supplier</option>
+                                    @foreach($suppliers as $supplier)
+                                        <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>{{ $supplier->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('supplier_id')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
                             <button type="submit" class="inline-flex
 justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600
 border border-transparent rounded-md shadow-sm hover:bg-indigo-700

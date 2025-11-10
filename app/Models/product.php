@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class product extends Model
 {
@@ -15,6 +16,15 @@ class product extends Model
         'type',
         'information',
         'qty',
-        'producer'
+        'producer',
+        'supplier_id',
     ];
+
+    /**
+     * Get the supplier that owns the product.
+     */
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
+    }
 }

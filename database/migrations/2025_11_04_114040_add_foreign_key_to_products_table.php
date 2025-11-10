@@ -1,34 +1,32 @@
 <?php
 
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+
 return new class extends Migration
 {
     /**
-     * Jalankan migration.
+     * Run the migrations.
      */
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            // Cek dulu apakah kolom 'producer' belum ada
-            if (!Schema::hasColumn('products', 'producer')) {
-                $table->string('producer')->after('qty');
-            }
+            $table -> foreignId('supplier_id')->nullable()->constrained();
         });
     }
 
+
     /**
-     * Batalkan migration (rollback).
+     * Reverse the migrations.
      */
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            // Cek dulu apakah kolom 'producer' ada sebelum dihapus
-            if (Schema::hasColumn('products', 'producer')) {
-                $table->dropColumn('producer');
-            }
+            $table->dropForeign(['supplier_id']);
+            $table->dropColumn('supplier_id');
         });
     }
 };

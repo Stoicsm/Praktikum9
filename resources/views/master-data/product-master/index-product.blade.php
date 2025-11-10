@@ -107,6 +107,12 @@
                                 Producer {!! $sortBy === 'producer' ? ($sortOrder === 'asc' ? '▲' : '▼') : '' !!}
                             </a>
                         </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border border-gray-200">
+                            <a href="{{ route('product-index', ['sort_by' => 'supplier', 'sort_order' => $nextOrder, 'search' => request('search')]) }}"
+                                class="hover:underline">
+                                Supplier {!! $sortBy === 'supplier' ? ($sortOrder === 'asc' ? '▲' : '▼') : '' !!}
+                            </a>
+                        </th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border border-gray-200">Aksi</th>
                     </tr>
                 </thead>
@@ -125,6 +131,7 @@
                             <td class="px-4 py-2 border border-gray-200 text-sm text-gray-900">{{ $item->information }}</td>
                             <td class="px-4 py-2 border border-gray-200 text-sm text-gray-900">{{ $item->qty }}</td>
                             <td class="px-4 py-2 border border-gray-200 text-sm text-gray-900">{{ $item->producer }}</td>
+                            <td class="px-4 py-2 border border-gray-200 text-sm text-gray-900">{{ optional($item->supplier)->name }}</td>
                             <td class="px-4 py-2 border border-gray-200 whitespace-nowrap text-sm font-medium">
                                 <a href="{{ route('product-edit', $item->id) }}"
                                     class="text-blue-600 hover:text-blue-800 transition duration-150 ease-in-out mr-2">
